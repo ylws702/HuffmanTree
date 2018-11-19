@@ -11,10 +11,10 @@ struct TreeNode
     TreeNode(TreeNode&&) = delete;
     virtual ~TreeNode() {}
     virtual void Swap(TreeNode& other);
+    virtual bool IsLeaf()const;
     T content;
-    std::unique_ptr<TreeNode<T>> parent = nullptr;
-    std::unique_ptr<TreeNode<T>> leftChild = nullptr;
-    std::unique_ptr<TreeNode<T>> rightChild = nullptr;
+    std::unique_ptr<TreeNode<T>> left = nullptr;
+    std::unique_ptr<TreeNode<T>> right = nullptr;
 };
 template<typename T>
 void swap(TreeNode<T>& t1, TreeNode<T>& t2);
@@ -35,9 +35,15 @@ template<typename T>
 inline void TreeNode<T>::Swap(TreeNode & other)
 {
     std::swap(this->content, other.content);
-    this->parent.swap(other.parent);
-    this->leftChild.swap(other.leftChild);
-    this->rightChild.swap(other.rightChild);
+    this->left.swap(other.left);
+    this->right.swap(other.right);
+}
+
+template<typename T>
+inline bool TreeNode<T>::IsLeaf() const
+{
+    return this->left == nullptr
+        && this->right == nullptr;
 }
 
 template<typename T>
