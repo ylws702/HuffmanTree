@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="HuffmanTree&lt;CharType, WeightType&gt;">
+    <Position X="0.5" Y="0.5" Width="2.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="HuffmanTree&lt;CharType, WeightType&gt;::HuffmanTreeNodeContent">
+        <TypeIdentifier>
+          <NewMemberFileName>HuffmanTree.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="HuffmanTree&lt;CharType, WeightType&gt;::HuffmanTreeNode">
+        <TypeIdentifier>
+          <NewMemberFileName>HuffmanTree.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABAAAAAAQAgAAAACBAAAAAAAAAgQAAAAAA=</HashCode>
+      <FileName>HuffmanTree.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinHeap&lt;T&gt;">
+    <Position X="5.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CABAAEAAAAAAgAAAAAAAAAAAAAAAAAAAAAARAAAAAAA=</HashCode>
+      <FileName>MinHeap.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="TreeNode&lt;T&gt;">
+    <Position X="3.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAEBAAAAAJAACAAAAAAAAAgAA=</HashCode>
+      <FileName>TreeNode.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
