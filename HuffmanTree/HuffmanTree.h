@@ -102,18 +102,19 @@ inline void HuffmanTree<CharType, WeightType>::MakeCodes(decltype(&root) current
     if ((*current)->IsLeaf())
     {
         this->codes.insert({ (*current)->content.ch,code });
-        code.pop_back();
         return;
     }
     if ((*current)->left != nullptr)
     {
         code.push_back('0');
         this->MakeCodes(&(*current)->left, code);
+        code.pop_back();
     }
     if ((*current)->right != nullptr)
     {
         code.push_back('1');
         this->MakeCodes(&(*current)->right, code);
+        code.pop_back();
     }
 }
 
