@@ -16,7 +16,6 @@ public:
     struct HuffmanTreeNodeContent
     {
         CharType ch;
-        bool code;
         WeightType weight;
         bool operator<=(const HuffmanTreeNodeContent& other)
         {
@@ -80,7 +79,7 @@ public:
     //使用std::unique_ptr<HuffmanTreeNode>会导致root与子节点类型不同
     std::unique_ptr<TreeNode<HuffmanTreeNodeContent>> root;
     std::map<CharType, std::string> codes;
-    void MakeCodes(decltype(&root) current,std::string& code);
+    void MakeCodes(decltype(&root) current, std::string& code);
 public:
     //  哈夫曼树方法声明及重载编译系统默认方法声明:
     HuffmanTree(const CharType ch[], const WeightType w[], int n);  // 由字符,权值和字符个数构造哈夫曼树
@@ -121,27 +120,25 @@ inline void HuffmanTree<CharType, WeightType>::MakeCodes(decltype(&root) current
 template<class CharType, class WeightType>
 inline HuffmanTree<CharType, WeightType>::HuffmanTree(const CharType ch[], const WeightType w[], int n)
 {
-    if (n<=0)
+    if (n <= 0)
     {
         return;
     }
-    if (n==1)
+    if (n == 1)
     {
         this->codes.insert({ *ch,"0" });
-        this->root = std::make_unique<HuffmanTreeNode>(HuffmanTreeNodeContent{ *ch,false,*w });
+        this->root = std::make_unique<HuffmanTreeNode>(HuffmanTreeNodeContent{ *ch,*w });
         return;
     }
     MinHeap<HuffmanTreeNode> minHeap;
     for (int i = 0; i < n; ++i)
     {
-        minHeap.Insert(HuffmanTreeNode({ ch[i],false,w[i] }));
+        minHeap.Insert(HuffmanTreeNode({ ch[i],w[i] }));
     }
     while (minHeap.Size() >= 2)
     {
         auto&&min1 = minHeap.RemoveMin();
-        min1.content.code = false;
         auto&&min2 = minHeap.RemoveMin();
-        min2.content.code = true;
         HuffmanTreeNode parent(min1.content.weight + min2.content.weight);
         parent.left = std::make_unique<HuffmanTreeNode>(std::move(min1));
         parent.right = std::make_unique<HuffmanTreeNode>(std::move(min2));
