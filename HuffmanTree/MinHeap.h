@@ -126,9 +126,9 @@ T MinHeap<T>::RemoveMin()
     // 弹出最后的空元素
     this->data.pop_back();
     // 操作位置偏移量
-    int position = 0;
+    std::size_t position = 0;
     // 孩子偏移量
-    int sub;
+    std::size_t sub;
     // 先不调整最下两层
     while (position < this->data.size() / 4)
     {

@@ -5,10 +5,10 @@
 template<class T>
 struct TreeNode
 {
-    // 默认构造函数
-    TreeNode() {}
+    // 禁用默认构造函数
+    TreeNode() = delete;
     // 以内容左值构造
-    TreeNode(T& t);
+    TreeNode(const T& t);
     // 以内容右值构造
     TreeNode(T&& t);
     // 禁用复制构造函数
@@ -35,7 +35,7 @@ void swap(TreeNode<T>& t1, TreeNode<T>& t2);
 
 // 以内容左值构造
 template<class T>
-inline TreeNode<T>::TreeNode(T& t)
+inline TreeNode<T>::TreeNode(const T& t)
 {
     this->content = t;
 }

@@ -32,7 +32,8 @@ public:
     // 由字符,权值和字符个数构造哈夫曼树
     //HuffmanTree(const CharType ch[], const WeightType w[], int n);
     // 由字符,权值向量构造哈夫曼树
-    HuffmanTree(const std::vector<CharType>& chars, const std::vector<WeightType>& weights) :
+    HuffmanTree(const std::vector<CharType>& chars,
+        const std::vector<WeightType>& weights) :
         // 调用已有构造函数
         HuffmanTree(chars.data(), weights.data(), (int)chars.size())
     {}
@@ -44,11 +45,11 @@ public:
     // 使用默认析构函数模板
     //virtual ~HuffmanTree();
     // 编码字符
-    std::string Encode(CharType ch);
+    std::string Encode(CharType ch)const;
     // 编码字符向量
-    std::string Encode(std::vector<CharType> chars);
+    std::string Encode(std::vector<CharType> chars)const;
     // 译码字符串
-    std::vector<CharType> Decode(const std::string& strCode);
+    std::vector<CharType> Decode(const std::string& strCode)const;
     // 重载移动赋值运算符
     HuffmanTree &operator=(HuffmanTree&& copy);
 };
@@ -63,21 +64,21 @@ struct HuffmanTree<CharType, WeightType>::HuffmanTreeNodeContent
     WeightType weight;
 
     //重载小于等于运算符
-    bool operator<=(const HuffmanTreeNodeContent& other)
+    bool operator<=(const HuffmanTreeNodeContent& other)const
     {
         //依据权重比较
         return this->weight <= other.weight;
     }
 
     //重载小于运算符
-    bool operator<(const HuffmanTreeNodeContent& other)
+    bool operator<(const HuffmanTreeNodeContent& other)const
     {
         //依据权重比较
         return this->weight < other.weight;
     }
 
     //重载大于运算符
-    bool operator>(const HuffmanTreeNodeContent& other)
+    bool operator>(const HuffmanTreeNodeContent& other)const
     {
         //依据权重比较
         return this->weight > other.weight;
@@ -91,14 +92,16 @@ struct HuffmanTree<CharType, WeightType>::HuffmanTreeNode :
     // 结构体默认public继承
     TreeNode<HuffmanTreeNodeContent>
 {
-    // 默认构造函数
-    HuffmanTreeNode() {}
+    // 禁用默认构造函数
+    HuffmanTreeNode() = delete;
 
     // 禁用复制构造函数
     HuffmanTreeNode(HuffmanTreeNode&) = delete;
 
     // 移动构造函数
-    HuffmanTreeNode(HuffmanTreeNode&& other)noexcept
+    HuffmanTreeNode(HuffmanTreeNode&& other)noexcept :
+        //调用父类构造函数
+        TreeNode<HuffmanTreeNodeContent>(HuffmanTreeNodeContent())
     {
         // 移动内容
         this->content = std::move(other.content);
@@ -109,24 +112,27 @@ struct HuffmanTree<CharType, WeightType>::HuffmanTreeNode :
     }
 
     //通过哈夫曼叶节点权值构造
-    HuffmanTreeNode(WeightType weight)
+    HuffmanTreeNode(WeightType weight) :
+        //调用父类构造函数
+        TreeNode<HuffmanTreeNodeContent>(HuffmanTreeNodeContent())
     {
         this->content.weight = weight;
     }
 
     // 通过哈夫曼叶节点左值构造
-    HuffmanTreeNode(const HuffmanTreeNodeContent& content)
+    HuffmanTreeNode(const HuffmanTreeNodeContent& content) :
+        //调用父类构造函数
+        TreeNode<HuffmanTreeNodeContent>(HuffmanTreeNodeContent())
     {
         // 复制内容
         this->content = content;
     }
 
     // 通过哈夫曼叶节点右值构造
-    HuffmanTreeNode(HuffmanTreeNodeContent&& content)
-    {
-        // 移动内容
-        this->content = std::move(content);
-    }
+    HuffmanTreeNode(HuffmanTreeNodeContent&& content) :
+        // 移动内容,调用父类构造函数
+        TreeNode<HuffmanTreeNodeContent>(std::move(content))
+    { }
 
     // 重载移动赋值运算符
     HuffmanTreeNode& operator=(HuffmanTreeNode&& other)noexcept
@@ -146,21 +152,21 @@ struct HuffmanTree<CharType, WeightType>::HuffmanTreeNode :
     }
 
     //重载小于等于运算符
-    bool operator<=(const HuffmanTreeNode& other)
+    bool operator<=(const HuffmanTreeNode& other)const
     {
         //依据权重比较
         return this->content.weight <= other.content.weight;
     }
 
     //重载小于运算符
-    bool operator<(const HuffmanTreeNode& other)
+    bool operator<(const HuffmanTreeNode& other)const
     {
         //依据权重比较
         return this->content.weight < other.content.weight;
     }
 
     //重载大于运算符
-    bool operator>(const HuffmanTreeNode& other)
+    bool operator>(const HuffmanTreeNode& other)const
     {
         //依据权重比较
         return this->content.weight > other.content.weight;
@@ -209,7 +215,8 @@ HuffmanTree(const CharType ch[], const WeightType w[], int n)
         //直接将其编码为0
         this->codes.insert({ *ch,"0" });
         //放在根节点上
-        this->root = std::make_unique<HuffmanTreeNode>(HuffmanTreeNodeContent{ *ch,*w });
+        this->root =
+            std::make_unique<HuffmanTreeNode>(HuffmanTreeNodeContent{ *ch,*w });
         return;
     }
     //创建小顶堆
@@ -249,11 +256,12 @@ HuffmanTree(const CharType ch[], const WeightType w[], int n)
 
 //编码字符
 template<class CharType, class WeightType>
-inline std::string HuffmanTree<CharType, WeightType>::Encode(CharType ch)
+inline std::string HuffmanTree<CharType, WeightType>::
+Encode(CharType ch)const
 {
     // 从字符编码映射中查到ch的字符编码
     // C++ 17:带初始化语句的if语句
-    if (auto it = this->codes.find(ch); 
+    if (auto it = this->codes.find(ch);
         it != this->codes.end())
     {
         //返回字符编码
@@ -266,7 +274,7 @@ inline std::string HuffmanTree<CharType, WeightType>::Encode(CharType ch)
 //编码字符向量
 template<class CharType, class WeightType>
 std::string HuffmanTree<CharType, WeightType>::
-Encode(std::vector<CharType> chars)
+Encode(std::vector<CharType> chars)const
 {
     //编码的字符串
     std::string codedString;
@@ -294,7 +302,7 @@ Encode(std::vector<CharType> chars)
 //译码字符串
 template<class CharType, class WeightType>
 inline std::vector<CharType> HuffmanTree<CharType, WeightType>::
-Decode(const std::string & strCode)
+Decode(const std::string & strCode)const
 {
     //译码结果
     std::vector<CharType> decodedList;
@@ -344,7 +352,8 @@ Decode(const std::string & strCode)
 
 // 重载移动赋值运算符
 template<class CharType, class WeightType>
-inline HuffmanTree<CharType, WeightType> & HuffmanTree<CharType, WeightType>::operator=(HuffmanTree && other)
+inline HuffmanTree<CharType, WeightType> & HuffmanTree<CharType, WeightType>::
+operator=(HuffmanTree && other)
 {
     // 自赋值判定
     if (this != &other)
