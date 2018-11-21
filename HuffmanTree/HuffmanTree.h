@@ -4,6 +4,7 @@
 #include "TreeNode.h"
 #include <list>
 #include <map>
+#include <stack>
 #include <string>
 #include <vector>
 
@@ -15,6 +16,7 @@ public:
     struct HuffmanTreeNodeContent
     {
         CharType ch;
+        bool code;
         WeightType weight;
         bool operator<=(const HuffmanTreeNodeContent& other)
         {
@@ -34,7 +36,7 @@ public:
     {
         HuffmanTreeNode() {}
         HuffmanTreeNode(HuffmanTreeNode&) = delete;
-        HuffmanTreeNode(HuffmanTreeNode&& other)
+        HuffmanTreeNode(HuffmanTreeNode&& other)noexcept
         {
             this->content = std::move(other.content);
             this->left = std::move(other.left);
@@ -52,7 +54,7 @@ public:
         {
             this->content = std::move(content);
         }
-        HuffmanTreeNode& operator=(HuffmanTreeNode&& other)
+        HuffmanTreeNode& operator=(HuffmanTreeNode&& other)noexcept
         {
             if (this != &other)
             {
@@ -75,8 +77,10 @@ public:
             return this->content.weight > other.content.weight;
         }
     };
-    std::unique_ptr<HuffmanTreeNode> root;
+    //使用std::unique_ptr<HuffmanTreeNode>会导致root与子节点类型不同
+    std::unique_ptr<TreeNode<HuffmanTreeNodeContent>> root;
     std::map<CharType, std::string> codes;
+    void MakeCodes(decltype(&root) current,std::string& code);
 public:
     //  哈夫曼树方法声明及重载编译系统默认方法声明:
     HuffmanTree(const CharType ch[], const WeightType w[], int n);  // 由字符,权值和字符个数构造哈夫曼树
@@ -92,18 +96,52 @@ public:
 };
 
 
+
+template<class CharType, class WeightType>
+inline void HuffmanTree<CharType, WeightType>::MakeCodes(decltype(&root) current, std::string & code)
+{
+    if ((*current)->IsLeaf())
+    {
+        this->codes.insert({ (*current)->content.ch,code });
+        code.pop_back();
+        return;
+    }
+    if ((*current)->left != nullptr)
+    {
+        code.push_back('0');
+        this->MakeCodes(&(*current)->left, code);
+    }
+    if ((*current)->right != nullptr)
+    {
+        code.push_back('1');
+        this->MakeCodes(&(*current)->right, code);
+    }
+}
+
 template<class CharType, class WeightType>
 inline HuffmanTree<CharType, WeightType>::HuffmanTree(const CharType ch[], const WeightType w[], int n)
 {
+    if (n<=0)
+    {
+        return;
+    }
+    if (n==1)
+    {
+        this->codes.insert({ *ch,"0" });
+        this->root = std::make_unique<HuffmanTreeNode>(HuffmanTreeNodeContent{ *ch,false,*w });
+        return;
+    }
     MinHeap<HuffmanTreeNode> minHeap;
     for (int i = 0; i < n; ++i)
     {
-        minHeap.Insert(HuffmanTreeNode({ ch[i],w[i] }));
+        minHeap.Insert(HuffmanTreeNode({ ch[i],false,w[i] }));
     }
     while (minHeap.Size() >= 2)
     {
         auto&&min1 = minHeap.RemoveMin();
+        min1.content.code = false;
         auto&&min2 = minHeap.RemoveMin();
+        min2.content.code = true;
         HuffmanTreeNode parent(min1.content.weight + min2.content.weight);
         parent.left = std::make_unique<HuffmanTreeNode>(std::move(min1));
         parent.right = std::make_unique<HuffmanTreeNode>(std::move(min2));
@@ -113,7 +151,8 @@ inline HuffmanTree<CharType, WeightType>::HuffmanTree(const CharType ch[], const
     {
         this->root = std::make_unique<HuffmanTreeNode>(minHeap.RemoveMin());
     }
-
+    std::string code;
+    this->MakeCodes(&root, code);
 }
 
 template<class CharType, class WeightType>
