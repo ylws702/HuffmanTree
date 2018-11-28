@@ -4,6 +4,7 @@
 #include "TreeNode.h"
 #include <functional>
 #include <map>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -39,15 +40,22 @@ public:
     {}
     // 移动构造函数模板
     HuffmanTree(HuffmanTree &&other) :
+        //移动字符编码映射
         codes(std::move(other.codes)),
+        //移动根节点指针
         root(std::move(other.root))
     {}
     // 使用默认析构函数模板
     //virtual ~HuffmanTree();
     // 编码字符
     std::string Encode(CharType ch)const;
-    // 编码字符向量
-    std::string Encode(std::vector<CharType> chars)const;
+    // 使用左值编码字符向量
+    std::string Encode(const std::vector<CharType>& chars)const;
+    // 使用右值编码字符向量
+    std::string Encode(std::vector<CharType>&& chars)const;
+    //使用函数f遍历字符编码
+    //函数f接受CharType和std::string型const引用,无返回值
+    void Traverse(const std::function<void(CharType,const std::string&)>f)const;
     // 译码字符串
     std::vector<CharType> Decode(const std::string& strCode)const;
     // 重载移动赋值运算符
@@ -132,7 +140,7 @@ struct HuffmanTree<CharType, WeightType>::HuffmanTreeNode :
     HuffmanTreeNode(HuffmanTreeNodeContent&& content) :
         // 移动内容,调用父类构造函数
         TreeNode<HuffmanTreeNodeContent>(std::move(content))
-    { }
+    {}
 
     // 重载移动赋值运算符
     HuffmanTreeNode& operator=(HuffmanTreeNode&& other)noexcept
@@ -268,13 +276,12 @@ Encode(CharType ch)const
         return this->codes.find(ch)->second;
     }
     //未查找到字符,抛出异常
-    throw std::exception("char not found!");
+    throw std::runtime_error("char not found!");
 }
 
-//编码字符向量
 template<class CharType, class WeightType>
-std::string HuffmanTree<CharType, WeightType>::
-Encode(std::vector<CharType> chars)const
+inline std::string HuffmanTree<CharType, WeightType>::
+Encode(const std::vector<CharType>& chars) const
 {
     //编码的字符串
     std::string codedString;
@@ -292,11 +299,52 @@ Encode(std::vector<CharType> chars)const
         else
         {
             //未查找到字符,抛出异常
-            throw std::exception("chars contains undefined character!");
+            throw std::range_error("chars contains undefined character!");
         }
     }
     //返回编码的字符串
     return codedString;
+}
+
+template<class CharType, class WeightType>
+inline std::string HuffmanTree<CharType, WeightType>::
+Encode(std::vector<CharType>&& chars) const
+{
+    //编码的字符串
+    std::string codedString;
+    //依次查询字符编码
+    for (auto& ch : std::move(chars))
+    {
+        // 从字符编码映射中查到ch的字符编码
+        // C++ 17:带初始化语句的if语句
+        if (auto it = this->codes.find(ch);
+            it != this->codes.end())
+        {
+            //添加字符编码到编码的字符串
+            codedString.append(this->codes.find(ch)->second);
+        }
+        else
+        {
+            //未查找到字符,抛出异常
+            throw std::range_error("chars contains undefined character!");
+        }
+    }
+    //返回编码的字符串
+    return codedString;
+}
+
+
+//使用函数f遍历字符编码
+template<class CharType, class WeightType>
+inline void HuffmanTree<CharType, WeightType>::
+Traverse(const std::function<void(CharType, const std::string&)> f) const
+{
+    //C++ 17:结构化绑定
+    for (const auto&[ch, code] : this->codes)
+    {
+        //依次对字符编码映射中的元素对调用函数f
+        f(ch, code);
+    }
 }
 
 //译码字符串
@@ -335,6 +383,7 @@ Decode(const std::string & strCode)const
         {
             //当前指针指向左孩子
             current = &(*current)->left;
+            //继续遍历循环
             continue;
         }
         //否则指向右孩子

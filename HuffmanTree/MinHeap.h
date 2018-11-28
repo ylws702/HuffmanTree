@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdexcept>
 #include <vector>
 
 // 小顶堆类
@@ -117,7 +118,7 @@ T MinHeap<T>::RemoveMin()
     // 堆中无元素,抛出异常
     if (this->data.empty())
     {
-        throw std::exception("heap is empty!");
+        throw std::runtime_error("heap is empty!");
     }
     // 返回的结果
     T result = std::move(this->data.front());
